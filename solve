@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Simple wrapper to run connections
+# Make sure ANTHROPIC_API_KEY is set in your environment
+
+./target/local/bin/connections

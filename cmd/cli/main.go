@@ -12,6 +12,27 @@ import (
 func main() {
 	fmt.Println("🔗 NYTimes Connections Solver")
 	fmt.Println("================================")
+
+	// Check for AI API keys (Gemini first, then Claude, then OpenAI)
+	geminiKey := os.Getenv("GEMINI_API_KEY")
+	claudeKey := os.Getenv("ANTHROPIC_API_KEY")
+	openaiKey := os.Getenv("OPENAI_API_KEY")
+
+	var aiMode string
+	if geminiKey != "" {
+		aiMode = "gemini"
+		fmt.Println("✨ AI mode enabled (using Google Gemini)")
+	} else if claudeKey != "" {
+		aiMode = "claude"
+		fmt.Println("✨ AI mode enabled (using Claude)")
+	} else if openaiKey != "" {
+		aiMode = "openai"
+		fmt.Println("✨ AI mode enabled (using OpenAI)")
+	} else {
+		aiMode = "none"
+		fmt.Println("📊 Pattern matching mode")
+		fmt.Println("   Set GEMINI_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY for AI")
+	}
 	fmt.Println()
 
 	words, err := readWords()
@@ -31,8 +52,20 @@ func main() {
 	}
 	fmt.Println()
 
+	// Create solver (with or without AI)
+	var s *solver.Solver
+	switch aiMode {
+	case "gemini":
+		s = solver.NewWithGemini(geminiKey)
+	case "claude":
+		s = solver.NewWithClaude(claudeKey)
+	case "openai":
+		s = solver.NewWithAI(openaiKey)
+	default:
+		s = solver.New()
+	}
+
 	// Solve the puzzle
-	s := solver.New()
 	groups, err := s.Solve(words)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error solving: %v\n", err)
@@ -43,8 +76,17 @@ func main() {
 	fmt.Println("Suggested Groups:")
 	fmt.Println("=================")
 	for i, group := range groups {
-		fmt.Printf("\nGroup %d: %s\n", i+1, group.Theme)
+		fmt.Printf("\nGroup %d: %s", i+1, group.Theme)
+		if group.Source == "ai" {
+			fmt.Printf(" [AI]")
+		} else {
+			fmt.Printf(" [Pattern]")
+		}
+		fmt.Println()
 		fmt.Printf("Words: %s\n", strings.Join(group.Words, ", "))
+		if group.Explanation != "" {
+			fmt.Printf("Explanation: %s\n", group.Explanation)
+		}
 		fmt.Printf("Confidence: %.0f%%\n", group.Confidence*100)
 	}
 }

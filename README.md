@@ -1,40 +1,69 @@
-# NYTimes Connections Solver
+# Connections Solver
 
-A Go-based solver for the NYTimes Connections puzzle.
+A Go-based solver for the NYT Connections puzzle game with AI integration.
 
-## What is Connections?
+## Setup
 
-Connections is a word puzzle where you're given 16 words that form 4 groups of 4 words each. Each group shares a common theme or connection. The challenge is to identify all four groups without making more than 4 mistakes.
+### Prerequisites
+- Go 1.21 or higher
+- Anthropic API key (for Claude AI integration)
 
-## Project Structure
+### Installation
 
-- `cmd/cli/` - Command-line interface
-- `pkg/solver/` - Core solving logic
-- `pkg/grouper/` - Group detection algorithms
-- `pkg/analyzer/` - Word analysis utilities
+1. Clone the repository:
+```bash
+git clone git@github.com-sjg:StephenGriese/connections.git
+cd connections
+```
+
+2. Set up your Anthropic API key:
+```bash
+# Add to your ~/.zshrc or ~/.bashrc
+export ANTHROPIC_API_KEY='your-api-key-here'
+
+# Or source it for the current session
+export ANTHROPIC_API_KEY='your-api-key-here'
+```
+
+3. Build and install:
+```bash
+make build
+./build-and-install.sh
+```
 
 ## Usage
 
-### CLI
+Run the solver:
 ```bash
-go run ./cmd/cli/main.go
+connections
+```
+
+Or from the project directory:
+```bash
+./run.sh
 ```
 
 ## Development
 
-Build the project:
+### Build
 ```bash
 make build
 ```
 
-Run tests:
+### Test
 ```bash
 make test
 ```
 
-## Future Plans
+### Lint
+```bash
+make lint
+```
 
-- Web interface
-- AI-assisted solving using LLM APIs
-- Pattern recognition improvements
-- Learning from past puzzles
+## How It Works
+
+The solver uses Claude AI to analyze the 16 words and identify the 4 groups of 4 words that share a common theme.
+
+## License
+
+MIT
