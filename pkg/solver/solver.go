@@ -66,10 +66,18 @@ func (s *Solver) Solve(words []string) ([]Group, error) {
 	// Try AI first if enabled
 	if s.useAI && s.aiProvider != nil {
 		aiGroups, err := s.solveWithAI(words)
-		if err == nil {
+		if err == nil && len(aiGroups) == 4 {
+			// Got all 4 groups from AI - perfect!
+			return aiGroups, nil
+		} else if len(aiGroups) > 0 {
+			// Got partial results from AI - use what we got
+			fmt.Printf("AI found %d of 4 groups. Using AI results.\n", len(aiGroups))
+			if len(aiGroups) < 4 {
+				return aiGroups, fmt.Errorf("could only find %d groups", len(aiGroups))
+			}
 			return aiGroups, nil
 		}
-		// If AI fails, fall back to pattern matching
+		// If AI fails completely, fall back to pattern matching
 		fmt.Printf("AI analysis failed (%v), falling back to pattern matching...\n\n", err)
 	}
 

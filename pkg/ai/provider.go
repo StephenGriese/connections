@@ -346,15 +346,28 @@ func parseJSONResponse(content string) ([]SuggestedGroup, error) {
 		return nil, fmt.Errorf("failed to parse AI response as JSON: %w\nContent: %s", err, content)
 	}
 
-	if len(groups) != 4 {
-		return nil, fmt.Errorf("expected 4 groups, got %d", len(groups))
+	// Accept partial results - don't fail if we got fewer than 4 groups
+	// The caller will handle partial results appropriately
+	if len(groups) == 0 {
+		return nil, fmt.Errorf("AI returned 0 groups")
 	}
 
+	// Validate each group has 4 words
+	validGroups := []SuggestedGroup{}
 	for i, group := range groups {
 		if len(group.Words) != 4 {
-			return nil, fmt.Errorf("group %d has %d words, expected 4", i+1, len(group.Words))
+			// Skip invalid groups but don't fail entirely
+			fmt.Printf("Warning: group %d has %d words, expected 4 - skipping\n", i+1, len(group.Words))
+			continue
 		}
+		validGroups = append(validGroups, group)
 	}
 
-	return groups, nil
+	if len(validGroups) == 0 {
+		return nil, fmt.Errorf("no valid groups found (all groups had wrong number of words)")
+	}
+
+	return validGroups, nil
 }
+
+

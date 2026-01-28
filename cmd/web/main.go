@@ -158,16 +158,39 @@ func handleSolve(w http.ResponseWriter, r *http.Request) {
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	var s *solver.Solver
 	if apiKey != "" {
+		log.Printf("Using Gemini AI with API key: %s...", apiKey[:20])
 		s = solver.NewWithGemini(apiKey)
 	} else {
-		// Fallback to pattern matching if no API key
+		log.Printf("No API key found, using pattern matching")
 		s = solver.New()
 	}
+
 	groups, err := s.Solve(req.Words)
 	if err != nil {
+		log.Printf("Solver error: %v (found %d groups)", err, len(groups))
+
+		// If we got some groups but not all 4, return them with a warning
+		if len(groups) > 0 {
+			respGroups := make([]Group, len(groups))
+			for i, grp := range groups {
+				respGroups[i] = Group{
+					Words:       grp.Words,
+					Theme:       grp.Theme,
+					Explanation: grp.Explanation,
+					Confidence:  grp.Confidence,
+				}
+			}
+			respondJSON(w, SolveResponse{
+				Success: false,
+				Groups:  respGroups,
+				Error:   fmt.Sprintf("Only found %d of 4 groups. Try rephrasing or checking your words.", len(groups)),
+			})
+			return
+		}
+
 		respondJSON(w, SolveResponse{
 			Success: false,
-			Error:   err.Error(),
+			Error:   fmt.Sprintf("Solver failed: %v. Make sure you entered exactly 16 valid words.", err),
 		})
 		return
 	}
