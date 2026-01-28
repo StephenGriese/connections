@@ -9,6 +9,9 @@ import (
 	"strings"
 
 	"connections/pkg/solver"
+
+	g "github.com/maragudk/gomponents"
+	. "github.com/maragudk/gomponents/html"
 )
 
 // Request payload for the API
@@ -48,74 +51,79 @@ func main() {
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	html := `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>NYTimes Connections Solver</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-        h1 { color: #333; }
-        textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; }
-        button { background: #4CAF50; color: white; padding: 15px 32px; font-size: 16px; border: none; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #45a049; }
-        #result { margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 5px; }
-        .group { margin: 10px 0; padding: 10px; background: white; border-left: 4px solid #4CAF50; }
-        .error { color: red; }
-    </style>
-</head>
-<body>
-    <h1>🔗 NYTimes Connections Solver</h1>
-    <p>Enter 16 words from today's Connections puzzle:</p>
-    <textarea id="words" placeholder="Enter words separated by spaces, commas, or one per line..."></textarea>
-    <br>
-    <button onclick="solve()">Solve Puzzle</button>
-    <div id="result"></div>
 
-    <script>
-        async function solve() {
-            const wordsText = document.getElementById('words').value;
-            const words = wordsText.split(/[\s,\n]+/).filter(w => w.length > 0);
-            
-            if (words.length !== 16) {
-                document.getElementById('result').innerHTML = '<p class="error">Please enter exactly 16 words. You entered ' + words.length + '.</p>';
-                return;
-            }
+	page := HTML(
+		Lang("en"),
+		Head(
+			TitleEl(g.Text("NYTimes Connections Solver")),
+			StyleEl(g.Raw(`
+				body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+				h1 { color: #333; }
+				textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; }
+				button { background: #4CAF50; color: white; padding: 15px 32px; font-size: 16px; border: none; cursor: pointer; margin-top: 10px; }
+				button:hover { background: #45a049; }
+				#result { margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 5px; }
+				.group { margin: 10px 0; padding: 10px; background: white; border-left: 4px solid #4CAF50; }
+				.error { color: red; }
+			`)),
+		),
+		Body(
+			H1(g.Text("🔗 NYTimes Connections Solver")),
+			P(g.Text("Enter 16 words from today's Connections puzzle:")),
+			Textarea(
+				ID("words"),
+				Placeholder("Enter words separated by spaces, commas, or one per line..."),
+			),
+			Br(),
+			Button(
+				g.Attr("onclick", "solve()"),
+				g.Text("Solve Puzzle"),
+			),
+			Div(ID("result")),
+			Script(g.Raw(`
+				async function solve() {
+					const wordsText = document.getElementById('words').value;
+					const words = wordsText.split(/[\s,\n]+/).filter(w => w.length > 0);
+					
+					if (words.length !== 16) {
+						document.getElementById('result').innerHTML = '<p class="error">Please enter exactly 16 words. You entered ' + words.length + '.</p>';
+						return;
+					}
 
-            document.getElementById('result').innerHTML = '<p>Analyzing with Gemini AI...</p>';
+					document.getElementById('result').innerHTML = '<p>Analyzing with Gemini AI...</p>';
 
-            try {
-                const response = await fetch('/solve', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ words: words })
-                });
+					try {
+						const response = await fetch('/solve', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ words: words })
+						});
 
-                const data = await response.json();
+						const data = await response.json();
 
-                if (data.success) {
-                    let html = '<h2>✅ Found ' + data.groups.length + ' groups:</h2>';
-                    data.groups.forEach((group, i) => {
-                        html += '<div class="group">';
-                        html += '<strong>Group ' + (i+1) + ':</strong> ' + group.theme + '<br>';
-                        html += '<strong>Words:</strong> ' + group.words.join(', ') + '<br>';
-                        html += '<strong>Explanation:</strong> ' + group.explanation + '<br>';
-                        html += '<strong>Confidence:</strong> ' + Math.round(group.confidence * 100) + '%';
-                        html += '</div>';
-                    });
-                    document.getElementById('result').innerHTML = html;
-                } else {
-                    document.getElementById('result').innerHTML = '<p class="error">Error: ' + data.error + '</p>';
-                }
-            } catch (error) {
-                document.getElementById('result').innerHTML = '<p class="error">Error: ' + error.message + '</p>';
-            }
-        }
-    </script>
-</body>
-</html>
-`
-	fmt.Fprint(w, html)
+						if (data.success) {
+							let html = '<h2>✅ Found ' + data.groups.length + ' groups:</h2>';
+							data.groups.forEach((group, i) => {
+								html += '<div class="group">';
+								html += '<strong>Group ' + (i+1) + ':</strong> ' + group.theme + '<br>';
+								html += '<strong>Words:</strong> ' + group.words.join(', ') + '<br>';
+								html += '<strong>Explanation:</strong> ' + group.explanation + '<br>';
+								html += '<strong>Confidence:</strong> ' + Math.round(group.confidence * 100) + '%';
+								html += '</div>';
+							});
+							document.getElementById('result').innerHTML = html;
+						} else {
+							document.getElementById('result').innerHTML = '<p class="error">Error: ' + data.error + '</p>';
+						}
+					} catch (error) {
+						document.getElementById('result').innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+					}
+				}
+			`)),
+		),
+	)
+
+	_ = page.Render(w)
 }
 
 func handleSolve(w http.ResponseWriter, r *http.Request) {
@@ -146,8 +154,15 @@ func handleSolve(w http.ResponseWriter, r *http.Request) {
 		req.Words[i] = strings.ToUpper(strings.TrimSpace(word))
 	}
 
-	// Solve the puzzle
-	s := solver.NewSolver()
+	// Solve the puzzle with Gemini AI
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	var s *solver.Solver
+	if apiKey != "" {
+		s = solver.NewWithGemini(apiKey)
+	} else {
+		// Fallback to pattern matching if no API key
+		s = solver.New()
+	}
 	groups, err := s.Solve(req.Words)
 	if err != nil {
 		respondJSON(w, SolveResponse{
@@ -159,12 +174,12 @@ func handleSolve(w http.ResponseWriter, r *http.Request) {
 
 	// Convert to response format
 	respGroups := make([]Group, len(groups))
-	for i, g := range groups {
+	for i, grp := range groups {
 		respGroups[i] = Group{
-			Words:       g.Words,
-			Theme:       g.Theme,
-			Explanation: g.Explanation,
-			Confidence:  g.Confidence,
+			Words:       grp.Words,
+			Theme:       grp.Theme,
+			Explanation: grp.Explanation,
+			Confidence:  grp.Confidence,
 		}
 	}
 
