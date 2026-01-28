@@ -11,19 +11,29 @@ You've pulled the latest code from GitHub. Here's what to do next:
 
 ## 🚀 Deploy to Heroku (Do This Now)
 
-### Step 1: Set Up Heroku App (First Time Only)
+### Step 1: Create Your Heroku App (First Time)
 
-If you already have a Heroku app for this project:
+Since this is your first deployment, create a new Heroku app:
+
 ```bash
 cd ~/path/to/connections
-heroku git:remote -a YOUR-HEROKU-APP-NAME
-```
 
-If you need to create a new app:
-```bash
-cd ~/path/to/connections
+# Let Heroku generate a random name (easiest):
+heroku create
+
+# OR choose your own name:
 heroku create connections-solver-sjg
+
+# OR any name you want (must be unique across all Heroku):
+heroku create your-custom-name
 ```
+
+**What happens:**
+- Heroku creates the app
+- Automatically adds the `heroku` remote to your git repo
+- Gives you a URL like: `https://your-app-name.herokuapp.com`
+
+**Note:** You can add a custom subdomain later in the Heroku dashboard!
 
 ### Step 2: Set Environment Variable
 ```bash
@@ -103,5 +113,17 @@ When you deploy:
 3. Creates binary at `bin/cli`
 4. Runs it with your GEMINI_API_KEY
 5. Your Connections solver is live! 🎉
+
+## 🌐 Adding a Custom Domain Later (Optional)
+
+After your app is deployed, you can add a custom subdomain:
+
+1. Go to: https://dashboard.heroku.com/apps/your-app-name/settings
+2. Scroll to "Domains"
+3. Click "Add domain"
+4. Enter your custom domain/subdomain
+5. Update your DNS settings as Heroku instructs
+
+For now, your app will be at: `https://your-app-name.herokuapp.com`
 
 Ready to deploy! Run the commands above on your personal computer.
