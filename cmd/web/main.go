@@ -10,6 +10,7 @@ import (
 
 	"connections/pkg/solver"
 
+	"github.com/joho/godotenv"
 	g "github.com/maragudk/gomponents"
 	h "github.com/maragudk/gomponents/html"
 )
@@ -34,6 +35,21 @@ type Group struct {
 }
 
 func main() {
+	// Load .env file if it exists (for local development)
+	// 🔴 BREAKPOINT HERE - Line 38: Set breakpoint to see .env loading
+	if err := godotenv.Load(); err != nil {
+		log.Printf("No .env file found (this is OK on Heroku): %v", err)
+	} else {
+		log.Printf("✅ Loaded .env file")
+		// Show what was loaded (first 20 chars of API key for verification)
+		apiKey := os.Getenv("GEMINI_API_KEY")
+		if apiKey != "" {
+			log.Printf("   GEMINI_API_KEY loaded: %s...", apiKey[:min(20, len(apiKey))])
+		} else {
+			log.Printf("   ⚠️  GEMINI_API_KEY is empty!")
+		}
+	}
+
 	// Get port from environment (Heroku provides this)
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -55,6 +71,7 @@ func handleHome(w http.ResponseWriter, _ *http.Request) {
 	page := h.HTML(
 		h.Lang("en"),
 		h.Head(
+			g.El("meta", g.Attr("charset", "UTF-8")),
 			h.TitleEl(g.Text("NYTimes Connections Solver")),
 			h.StyleEl(g.Raw(`
 				body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }

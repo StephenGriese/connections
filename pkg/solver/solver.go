@@ -66,6 +66,7 @@ func (s *Solver) Solve(words []string) ([]Group, error) {
 	// Try AI first if enabled
 	if s.useAI && s.aiProvider != nil {
 		aiGroups, err := s.solveWithAI(words)
+
 		if err == nil && len(aiGroups) == 4 {
 			// Got all 4 groups from AI - perfect!
 			return aiGroups, nil
@@ -92,8 +93,10 @@ func (s *Solver) Solve(words []string) ([]Group, error) {
 			// Try pattern matching on remaining words
 			if len(remainingWords) > 0 {
 				patternGroups, _ := s.solveWithPatterns(remainingWords)
+
 				// Combine AI groups with pattern groups
 				allGroups := append(aiGroups, patternGroups...)
+
 				if len(allGroups) == 4 {
 					fmt.Printf("Successfully completed puzzle: %d AI groups + %d pattern groups\n", len(aiGroups), len(patternGroups))
 					return allGroups, nil
@@ -138,8 +141,11 @@ func (s *Solver) solveWithAI(words []string) ([]Group, error) {
 
 // solveWithPatterns uses pattern matching to find groups
 func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
+	fmt.Printf("DEBUG solveWithPatterns: Called with %d words: %v\n", len(words), words)
+
 	// Use the grouper to find potential groups
 	candidates := s.grouper.FindGroups(words)
+	fmt.Printf("DEBUG solveWithPatterns: Grouper found %d candidates\n", len(candidates))
 
 	// Calculate how many groups we expect based on word count
 	// Each group has 4 words, so expected groups = words / 4
@@ -147,12 +153,13 @@ func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
 	if expectedGroups > 4 {
 		expectedGroups = 4 // Cap at 4 for standard Connections puzzle
 	}
+	fmt.Printf("DEBUG solveWithPatterns: Expecting %d groups from %d words\n", expectedGroups, len(words))
 
 	// Find non-overlapping groups
 	var result []Group
 	used := make(map[string]bool)
 
-	for _, candidate := range candidates {
+	for i, candidate := range candidates {
 		// Check if any word is already used
 		hasUsed := false
 		for _, word := range candidate.Words {
@@ -163,6 +170,7 @@ func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
 		}
 
 		if !hasUsed && len(result) < expectedGroups {
+			fmt.Printf("DEBUG solveWithPatterns: Adding candidate %d: %v (theme: %s)\n", i, candidate.Words, candidate.Theme)
 			result = append(result, Group{
 				Words:       candidate.Words,
 				Theme:       candidate.Theme,
@@ -175,12 +183,16 @@ func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
 			for _, word := range candidate.Words {
 				used[word] = true
 			}
+		} else if hasUsed {
+			fmt.Printf("DEBUG solveWithPatterns: Skipping candidate %d (has used words)\n", i)
 		}
 
 		if len(result) == expectedGroups {
 			break
 		}
 	}
+
+	fmt.Printf("DEBUG solveWithPatterns: Found %d groups (expected %d)\n", len(result), expectedGroups)
 
 	// Only return error if we're working with a full 16-word puzzle
 	// For partial word sets (from AI completion), return what we found

@@ -17,7 +17,7 @@
 
 ```bash
 # Replace YOUR-APP-NAME with your actual Heroku app name
-heroku config:set GEMINI_API_KEY=AIzaSyBXQZ-BxrFKQMONLvkERpXfRXCUquWk5aU --app YOUR-APP-NAME
+heroku config:set GEMINI_API_KEY=your-gemini-api-key-here --app YOUR-APP-NAME
 ```
 
 To find your app name:
