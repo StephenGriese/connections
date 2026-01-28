@@ -60,7 +60,7 @@ type GeminiProvider struct {
 func NewGeminiProvider(apiKey string) *GeminiProvider {
 	return &GeminiProvider{
 		apiKey: apiKey,
-		model:  "gemini-1.5-flash", // Works with v1beta API, generous free tier
+		model:  "gemini-pro", // Stable model that works with v1beta
 	}
 }
 

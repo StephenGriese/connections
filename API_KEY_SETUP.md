@@ -97,17 +97,27 @@ The app automatically:
 
 ### Gemini API Error: "model is not found for API version"
 
-This has been fixed in the latest version. The app now uses:
-- API version: `v1beta` (required for Gemini 1.5 models)
-- Model: `gemini-1.5-flash` (fast model with generous free tier)
-
-**Note:** Gemini 1.5 models require the v1beta API endpoint. The v1 endpoint only supports older models.
+The app now uses:
+- API version: `v1beta`
+- Model: `gemini-pro` (stable, widely supported)
 
 Make sure to rebuild after updating:
 ```bash
 cd ~/repos/sjg/connections
 make build
 ```
+
+### Verify Your Gemini API Key Works
+
+Test your API key directly with curl:
+
+```bash
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+```
+
+Replace `YOUR_API_KEY` with your actual Gemini API key. If this fails, your API key may not be activated or may need the Gemini API enabled in Google Cloud Console.
 
 ### Claude API Error: "credit balance is too low"
 
