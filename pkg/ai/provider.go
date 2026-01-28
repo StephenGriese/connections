@@ -60,7 +60,7 @@ type GeminiProvider struct {
 func NewGeminiProvider(apiKey string) *GeminiProvider {
 	return &GeminiProvider{
 		apiKey: apiKey,
-		model:  "gemini-1.5-flash-latest", // Latest stable model with generous free tier
+		model:  "gemini-1.5-flash", // Works with v1beta API, generous free tier
 	}
 }
 
@@ -266,8 +266,8 @@ func (p *GeminiProvider) AnalyzeWords(words []string) ([]SuggestedGroup, error) 
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Gemini API URL with model and API key in URL
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1/models/%s:generateContent?key=%s", p.model, p.apiKey)
+	// Gemini API URL with model and API key in URL (v1beta supports 1.5 models)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", p.model, p.apiKey)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {

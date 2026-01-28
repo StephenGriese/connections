@@ -98,8 +98,10 @@ The app automatically:
 ### Gemini API Error: "model is not found for API version"
 
 This has been fixed in the latest version. The app now uses:
-- API version: `v1` (stable)
-- Model: `gemini-1.5-flash-latest` (latest stable model with free tier)
+- API version: `v1beta` (required for Gemini 1.5 models)
+- Model: `gemini-1.5-flash` (fast model with generous free tier)
+
+**Note:** Gemini 1.5 models require the v1beta API endpoint. The v1 endpoint only supports older models.
 
 Make sure to rebuild after updating:
 ```bash
