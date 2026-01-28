@@ -99,7 +99,10 @@ The app automatically:
 
 The app now uses:
 - API version: `v1beta`
-- Model: `gemini-pro` (stable, widely supported)
+- Model: `gemini-2.5-flash` (current stable model as of 2025)
+
+**Note:** Google updated their models. Old models like `gemini-1.5-flash` and `gemini-pro` 
+no longer exist. Current models include `gemini-2.5-flash`, `gemini-2.5-pro`, etc.
 
 Make sure to rebuild after updating:
 ```bash
@@ -112,12 +115,13 @@ make build
 Test your API key directly with curl:
 
 ```bash
-curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_API_KEY" \
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=YOUR_API_KEY" \
   -H 'Content-Type: application/json' \
   -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
 ```
 
-Replace `YOUR_API_KEY` with your actual Gemini API key. If this fails, your API key may not be activated or may need the Gemini API enabled in Google Cloud Console.
+Replace `YOUR_API_KEY` with your actual Gemini API key. You should see a response with 
+`"candidates"` containing generated text.
 
 ### Claude API Error: "credit balance is too low"
 
