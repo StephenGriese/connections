@@ -11,7 +11,7 @@ import (
 	"connections/pkg/solver"
 
 	g "github.com/maragudk/gomponents"
-	. "github.com/maragudk/gomponents/html"
+	h "github.com/maragudk/gomponents/html"
 )
 
 // Request payload for the API
@@ -49,14 +49,14 @@ func main() {
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
-func handleHome(w http.ResponseWriter, r *http.Request) {
+func handleHome(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	page := HTML(
-		Lang("en"),
-		Head(
-			TitleEl(g.Text("NYTimes Connections Solver")),
-			StyleEl(g.Raw(`
+	page := h.HTML(
+		h.Lang("en"),
+		h.Head(
+			h.TitleEl(g.Text("NYTimes Connections Solver")),
+			h.StyleEl(g.Raw(`
 				body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
 				h1 { color: #333; }
 				textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; }
@@ -67,20 +67,20 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 				.error { color: red; }
 			`)),
 		),
-		Body(
-			H1(g.Text("🔗 NYTimes Connections Solver")),
-			P(g.Text("Enter 16 words from today's Connections puzzle:")),
-			Textarea(
-				ID("words"),
-				Placeholder("Enter words separated by spaces, commas, or one per line..."),
+		h.Body(
+			h.H1(g.Text("🔗 NYTimes Connections Solver")),
+			h.P(g.Text("Enter 16 words from today's Connections puzzle:")),
+			h.Textarea(
+				h.ID("words"),
+				h.Placeholder("Enter words separated by spaces, commas, or one per line..."),
 			),
-			Br(),
-			Button(
+			h.Br(),
+			h.Button(
 				g.Attr("onclick", "solve()"),
 				g.Text("Solve Puzzle"),
 			),
-			Div(ID("result")),
-			Script(g.Raw(`
+			h.Div(h.ID("result")),
+			h.Script(g.Raw(`
 				async function solve() {
 					const wordsText = document.getElementById('words').value;
 					const words = wordsText.split(/[\s,\n]+/).filter(w => w.length > 0);
@@ -189,12 +189,12 @@ func handleSolve(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func handleHealth(w http.ResponseWriter, r *http.Request) {
+func handleHealth(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, `{"status":"ok"}`)
+	_, _ = fmt.Fprint(w, `{"status":"ok"}`)
 }
 
 func respondJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }
