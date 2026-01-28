@@ -69,16 +69,15 @@ func (s *Solver) Solve(words []string) ([]Group, error) {
 		if err == nil && len(aiGroups) == 4 {
 			// Got all 4 groups from AI - perfect!
 			return aiGroups, nil
-		} else if len(aiGroups) > 0 {
-			// Got partial results from AI - use what we got
-			fmt.Printf("AI found %d of 4 groups. Using AI results.\n", len(aiGroups))
-			if len(aiGroups) < 4 {
-				return aiGroups, fmt.Errorf("could only find %d groups", len(aiGroups))
-			}
-			return aiGroups, nil
+		} else if err == nil && len(aiGroups) > 0 && len(aiGroups) < 4 {
+			// Got partial results from AI - return them with an error
+			fmt.Printf("AI found %d of 4 groups. Using partial AI results.\n", len(aiGroups))
+			return aiGroups, fmt.Errorf("could only find %d groups", len(aiGroups))
 		}
 		// If AI fails completely, fall back to pattern matching
-		fmt.Printf("AI analysis failed (%v), falling back to pattern matching...\n\n", err)
+		if err != nil {
+			fmt.Printf("AI analysis failed (%v), falling back to pattern matching...\n\n", err)
+		}
 	}
 
 	// Use pattern matching

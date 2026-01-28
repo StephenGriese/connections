@@ -369,5 +369,3 @@ func parseJSONResponse(content string) ([]SuggestedGroup, error) {
 
 	return validGroups, nil
 }
-
-
