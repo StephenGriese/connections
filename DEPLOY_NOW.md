@@ -7,6 +7,7 @@ You've pulled the latest code from GitHub. Here's what to do next:
 - Updated to Gemini 2.5 Flash model
 - Created Procfile for Heroku
 - Generated go.sum
+- **Created web server wrapper** (Heroku needs HTTP server, not CLI)
 - Pushed everything to GitHub
 
 ## 🚀 Deploy to Heroku (Do This Now)
@@ -47,8 +48,9 @@ git push heroku main
 
 Heroku will:
 - Detect it's a Go app
-- Build the binary from `cmd/cli`
-- Run it using the Procfile: `bin/cli`
+- Build the web server from `cmd/web`
+- Run it using the Procfile: `bin/web`
+- Your app will be accessible via web browser!
 
 ### Step 4: Check It Worked
 ```bash
@@ -59,11 +61,27 @@ heroku logs --tail
 heroku open
 ```
 
+## ⚠️ GOT AN ERROR? - Read This First!
+
+If you see "Application Error" when you open the app, **view the logs** to see what went wrong:
+
+```bash
+# View real-time logs (most helpful):
+heroku logs --tail
+
+# Or see last 100 lines:
+heroku logs -n 100
+```
+
+**Fixed:** The app is now a web server that Heroku can run! The H10 errors should be gone.
+
 ## 📝 Files Created for Heroku
 
-- **Procfile**: Tells Heroku to run `bin/cli` (the built binary)
+- **Procfile**: Tells Heroku to run `bin/web` (the web server)
+- **cmd/web/main.go**: Web server with HTML interface and API endpoints
 - **go.mod**: Specifies Go version (1.21)
 - **go.sum**: Dependencies checksums (required by Heroku)
+- **cmd/cli/main.go**: Original CLI tool (still works locally)
 
 ## 🔄 Future Updates Workflow
 
@@ -109,10 +127,12 @@ heroku logs --tail | grep "Build"
 
 When you deploy:
 1. Heroku detects Go
-2. Runs `go build` on `cmd/cli`
-3. Creates binary at `bin/cli`
-4. Runs it with your GEMINI_API_KEY
-5. Your Connections solver is live! 🎉
+2. Runs `go build` on `cmd/web` (the web server)
+3. Creates binary at `bin/web`
+4. Starts the web server listening on Heroku's PORT
+5. Opens a nice web interface where you can paste words and get solutions! 🎉
+
+**After deployment:** Just open the URL in your browser, paste in 16 words, and click "Solve Puzzle"!
 
 ## 🌐 Adding a Custom Domain Later (Optional)
 

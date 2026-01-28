@@ -1,1 +1,1 @@
-web: bin/cli
+web: bin/web
