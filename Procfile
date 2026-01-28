@@ -1,1 +1,1 @@
-web: ./target/local/bin/connections
+web: bin/cli

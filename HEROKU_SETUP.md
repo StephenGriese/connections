@@ -1,12 +1,19 @@
 # Heroku Deployment Guide
 
-## Fix: "missing required flag app" Error
+## Your Workflow: Work Computer → GitHub → Personal Computer → Heroku
 
-When you see "missing required flag app", you need to either:
-1. Add the app name to the command
-2. OR add a Heroku remote to your git repo
+### On Work Computer (Write Code)
+1. Write code
+2. Commit: `git add -A && git commit -m "message"`
+3. Push: `git push origin main`
 
-## Option 1: Use App Name in Command (Quick Fix)
+### On Personal Computer (Deploy to Heroku)
+1. Pull: `git pull origin main`
+2. Deploy: `git push heroku main`
+
+---
+
+## First-Time Heroku Setup (On Personal Computer Only)
 
 ```bash
 # Replace YOUR-APP-NAME with your actual Heroku app name
