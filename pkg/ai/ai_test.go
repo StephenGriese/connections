@@ -76,7 +76,7 @@ func TestParseJSONResponse(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "wrong number of groups",
+			name: "partial results - 1 group (now accepted)",
 			content: `[
 				{
 					"words": ["BASS", "TROUT", "PERCH", "SOLE"],
@@ -85,7 +85,7 @@ func TestParseJSONResponse(t *testing.T) {
 					"confidence": 0.95
 				}
 			]`,
-			wantErr: true,
+			wantErr: false, // Changed: we now accept partial results
 		},
 	}
 
@@ -96,8 +96,11 @@ func TestParseJSONResponse(t *testing.T) {
 				t.Errorf("parseJSONResponse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && len(groups) != 4 {
-				t.Errorf("parseJSONResponse() returned %d groups, want 4", len(groups))
+			if !tt.wantErr {
+				// We now accept 1-4 groups (partial results)
+				if len(groups) < 1 || len(groups) > 4 {
+					t.Errorf("parseJSONResponse() returned %d groups, want 1-4", len(groups))
+				}
 			}
 		})
 	}

@@ -70,8 +70,39 @@ func (s *Solver) Solve(words []string) ([]Group, error) {
 			// Got all 4 groups from AI - perfect!
 			return aiGroups, nil
 		} else if err == nil && len(aiGroups) > 0 && len(aiGroups) < 4 {
-			// Got partial results from AI - return them with an error
-			fmt.Printf("AI found %d of 4 groups. Using partial AI results.\n", len(aiGroups))
+			// Got partial results from AI - try to complete with pattern matching
+			fmt.Printf("AI found %d of 4 groups. Trying pattern matching for remaining words...\n", len(aiGroups))
+
+			// Find which words are already grouped
+			usedWords := make(map[string]bool)
+			for _, group := range aiGroups {
+				for _, word := range group.Words {
+					usedWords[word] = true
+				}
+			}
+
+			// Get remaining words
+			remainingWords := []string{}
+			for _, word := range words {
+				if !usedWords[word] {
+					remainingWords = append(remainingWords, word)
+				}
+			}
+
+			// Try pattern matching on remaining words
+			if len(remainingWords) > 0 {
+				patternGroups, _ := s.solveWithPatterns(remainingWords)
+				// Combine AI groups with pattern groups
+				allGroups := append(aiGroups, patternGroups...)
+				if len(allGroups) == 4 {
+					fmt.Printf("Successfully completed puzzle: %d AI groups + %d pattern groups\n", len(aiGroups), len(patternGroups))
+					return allGroups, nil
+				}
+				// Return partial results
+				return allGroups, fmt.Errorf("could only find %d groups", len(allGroups))
+			}
+
+			// Just return what AI found
 			return aiGroups, fmt.Errorf("could only find %d groups", len(aiGroups))
 		}
 		// If AI fails completely, fall back to pattern matching
@@ -110,9 +141,14 @@ func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
 	// Use the grouper to find potential groups
 	candidates := s.grouper.FindGroups(words)
 
-	// For now, return the top 4 candidates
-	// In a more sophisticated version, we'd use constraint satisfaction
-	// to ensure exactly 4 non-overlapping groups
+	// Calculate how many groups we expect based on word count
+	// Each group has 4 words, so expected groups = words / 4
+	expectedGroups := len(words) / 4
+	if expectedGroups > 4 {
+		expectedGroups = 4 // Cap at 4 for standard Connections puzzle
+	}
+
+	// Find non-overlapping groups
 	var result []Group
 	used := make(map[string]bool)
 
@@ -126,7 +162,7 @@ func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
 			}
 		}
 
-		if !hasUsed && len(result) < 4 {
+		if !hasUsed && len(result) < expectedGroups {
 			result = append(result, Group{
 				Words:       candidate.Words,
 				Theme:       candidate.Theme,
@@ -141,12 +177,14 @@ func (s *Solver) solveWithPatterns(words []string) ([]Group, error) {
 			}
 		}
 
-		if len(result) == 4 {
+		if len(result) == expectedGroups {
 			break
 		}
 	}
 
-	if len(result) < 4 {
+	// Only return error if we're working with a full 16-word puzzle
+	// For partial word sets (from AI completion), return what we found
+	if len(words) == 16 && len(result) < 4 {
 		return result, fmt.Errorf("could only find %d groups", len(result))
 	}
 
