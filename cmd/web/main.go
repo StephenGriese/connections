@@ -82,14 +82,33 @@ func handleHome(w http.ResponseWriter, _ *http.Request) {
 				#result { margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 5px; }
 				.group { margin: 10px 0; padding: 10px; background: white; border-left: 4px solid #4CAF50; }
 				.error { color: red; }
+				.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+				.grid input { padding: 10px; font-size: 16px; width: 100%; box-sizing: border-box; }
 			`)),
 		),
 		h.Body(
 			h.H1(g.Text("🔗 NYTimes Connections Solver")),
-			h.P(g.Text("Enter 16 words from today's Connections puzzle:")),
-			h.Textarea(
-				h.ID("words"),
-				h.Placeholder("Enter words separated by spaces, commas, or one per line..."),
+			h.P(g.Text("Enter 16 words or phrases (one per box). Multi-word phrases like 'bald eagle' are allowed.")),
+			// 4x4 grid of 16 inputs
+			h.Div(
+				h.Class("grid"),
+				// ...existing code... (inputs will be expanded below)
+				h.Input(h.ID("w0"), h.Placeholder("1")),
+				h.Input(h.ID("w1"), h.Placeholder("2")),
+				h.Input(h.ID("w2"), h.Placeholder("3")),
+				h.Input(h.ID("w3"), h.Placeholder("4")),
+				h.Input(h.ID("w4"), h.Placeholder("5")),
+				h.Input(h.ID("w5"), h.Placeholder("6")),
+				h.Input(h.ID("w6"), h.Placeholder("7")),
+				h.Input(h.ID("w7"), h.Placeholder("8")),
+				h.Input(h.ID("w8"), h.Placeholder("9")),
+				h.Input(h.ID("w9"), h.Placeholder("10")),
+				h.Input(h.ID("w10"), h.Placeholder("11")),
+				h.Input(h.ID("w11"), h.Placeholder("12")),
+				h.Input(h.ID("w12"), h.Placeholder("13")),
+				h.Input(h.ID("w13"), h.Placeholder("14")),
+				h.Input(h.ID("w14"), h.Placeholder("15")),
+				h.Input(h.ID("w15"), h.Placeholder("16")),
 			),
 			h.Br(),
 			h.Button(
@@ -98,45 +117,52 @@ func handleHome(w http.ResponseWriter, _ *http.Request) {
 			),
 			h.Div(h.ID("result")),
 			h.Script(g.Raw(`
-				async function solve() {
-					const wordsText = document.getElementById('words').value;
-					const words = wordsText.split(/[\s,\n]+/).filter(w => w.length > 0);
-					
-					if (words.length !== 16) {
-						document.getElementById('result').innerHTML = '<p class="error">Please enter exactly 16 words. You entered ' + words.length + '.</p>';
+			async function solve() {
+				const words = [];
+				for (let i = 0; i < 16; i++) {
+					const v = (document.getElementById('w' + i).value || '').trim();
+					if (v.length === 0) {
+						document.getElementById('result').innerHTML = '<p class="error">Please fill in all 16 boxes. Box ' + (i+1) + ' is empty.</p>';
 						return;
 					}
-
-					document.getElementById('result').innerHTML = '<p>Analyzing with Gemini AI...</p>';
-
-					try {
-						const response = await fetch('/solve', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ words: words })
-						});
-
-						const data = await response.json();
-
-						if (data.success) {
-							let html = '<h2>✅ Found ' + data.groups.length + ' groups:</h2>';
-							data.groups.forEach((group, i) => {
-								html += '<div class="group">';
-								html += '<strong>Group ' + (i+1) + ':</strong> ' + group.theme + '<br>';
-								html += '<strong>Words:</strong> ' + group.words.join(', ') + '<br>';
-								html += '<strong>Explanation:</strong> ' + group.explanation + '<br>';
-								html += '<strong>Confidence:</strong> ' + Math.round(group.confidence * 100) + '%';
-								html += '</div>';
-							});
-							document.getElementById('result').innerHTML = html;
-						} else {
-							document.getElementById('result').innerHTML = '<p class="error">Error: ' + data.error + '</p>';
-						}
-					} catch (error) {
-						document.getElementById('result').innerHTML = '<p class="error">Error: ' + error.message + '</p>';
-					}
+					words.push(v);
 				}
-			`)),
+
+				if (words.length !== 16) {
+					document.getElementById('result').innerHTML = '<p class="error">Please enter exactly 16 words.</p>';
+					return;
+				}
+
+				document.getElementById('result').innerHTML = '<p>Analyzing with Gemini AI...</p>';
+
+				try {
+					const response = await fetch('/solve', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ words: words })
+					});
+
+					const data = await response.json();
+
+					if (data.success) {
+						let html = '<h2>✅ Found ' + data.groups.length + ' groups:</h2>';
+						data.groups.forEach((group, i) => {
+							html += '<div class="group">';
+							html += '<strong>Group ' + (i+1) + ':</strong> ' + group.theme + '<br>';
+							html += '<strong>Words:</strong> ' + group.words.join(', ') + '<br>';
+							html += '<strong>Explanation:</strong> ' + group.explanation + '<br>';
+							html += '<strong>Confidence:</strong> ' + Math.round(group.confidence * 100) + '%';
+							html += '</div>';
+						});
+						document.getElementById('result').innerHTML = html;
+					} else {
+						document.getElementById('result').innerHTML = '<p class="error">Error: ' + data.error + '</p>';
+					}
+				} catch (error) {
+					document.getElementById('result').innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+				}
+			}
+		`)),
 		),
 	)
 
