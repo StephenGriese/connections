@@ -7,7 +7,10 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
+
+const defaultAITimeout = 60 * time.Second
 
 // Provider defines the AI provider interface
 type Provider interface {
@@ -26,6 +29,7 @@ type SuggestedGroup struct {
 type OpenAIProvider struct {
 	apiKey string
 	model  string
+	client *http.Client
 }
 
 // NewOpenAIProvider creates a new OpenAI provider
@@ -33,6 +37,7 @@ func NewOpenAIProvider(apiKey string) *OpenAIProvider {
 	return &OpenAIProvider{
 		apiKey: apiKey,
 		model:  "gpt-4o-mini",
+		client: &http.Client{Timeout: defaultAITimeout},
 	}
 }
 
@@ -40,6 +45,7 @@ func NewOpenAIProvider(apiKey string) *OpenAIProvider {
 type ClaudeProvider struct {
 	apiKey string
 	model  string
+	client *http.Client
 }
 
 // NewClaudeProvider creates a new Claude provider
@@ -47,6 +53,7 @@ func NewClaudeProvider(apiKey string) *ClaudeProvider {
 	return &ClaudeProvider{
 		apiKey: apiKey,
 		model:  "claude-3-5-haiku-20241022",
+		client: &http.Client{Timeout: defaultAITimeout},
 	}
 }
 
@@ -54,6 +61,7 @@ func NewClaudeProvider(apiKey string) *ClaudeProvider {
 type GeminiProvider struct {
 	apiKey string
 	model  string
+	client *http.Client
 }
 
 // NewGeminiProvider creates a new Gemini provider
@@ -61,6 +69,7 @@ func NewGeminiProvider(apiKey string) *GeminiProvider {
 	return &GeminiProvider{
 		apiKey: apiKey,
 		model:  "gemini-2.5-flash", // Current stable Gemini model (as of 2025)
+		client: &http.Client{Timeout: defaultAITimeout},
 	}
 }
 
@@ -160,8 +169,7 @@ func (p *OpenAIProvider) AnalyzeWords(words []string) ([]SuggestedGroup, error) 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+p.apiKey)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := p.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -217,8 +225,7 @@ func (p *ClaudeProvider) AnalyzeWords(words []string) ([]SuggestedGroup, error) 
 	req.Header.Set("x-api-key", p.apiKey)
 	req.Header.Set("anthropic-version", "2023-06-01")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := p.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -276,8 +283,7 @@ func (p *GeminiProvider) AnalyzeWords(words []string) ([]SuggestedGroup, error) 
 
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := p.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
