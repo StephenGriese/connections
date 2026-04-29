@@ -2,6 +2,12 @@
 
 NYT Connections AI solver with both a CLI and a web interface.
 
+## Setup (required once after cloning)
+
+```bash
+make init   # configures core.hooksPath and creates sentinel; make checks/build abort without this
+```
+
 ## Commands
 
 ```bash
