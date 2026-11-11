@@ -13,7 +13,7 @@ LDFLAGS := -X 'main.version=$(VERSION)' \
            -X 'main.goversion=$(BUILDVERSION)' \
            -X 'main.name=$(NAME)'
 
-BINARY := target/local/bin/connections
+BINARY := bin/connections
 
 # The sentinel lives in the *common* git dir's hooks directory, resolved
 # through git: in a linked worktree `.git` is a file, so a literal
@@ -62,8 +62,8 @@ link: build
 # lines rather than prerequisites so their order can never be scrambled —
 # recipe lines always run in order, unlike prerequisites under `make -j`.
 build: checks
-	rm -rf target
-	mkdir -p target/local/bin && go build -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/cli
+	rm -rf bin
+	mkdir -p bin && go build -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/cli
 
 checks: $(HOOKS_SENTINEL) staticcheck lint test
 
@@ -92,8 +92,8 @@ modules:
 	go mod tidy
 
 clean:
-	rm -rf target
+	rm -rf bin
 
 run:
 	@echo "Running Connections Solver..."
-	@./target/local/bin/connections
+	@./$(BINARY)

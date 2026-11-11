@@ -1,5 +1,5 @@
 # Binaries
-target/
+bin/
 *.exe
 *.exe~
 *.dll

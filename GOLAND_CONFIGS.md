@@ -55,7 +55,7 @@ I've added **4 GoLand run configurations** to your project in the `.run/` direct
 ✅ Uses Claude AI (API key included)
 ✅ Runs from cmd/cli/main.go
 ✅ Working directory: project root
-✅ Output: target/local/bin
+✅ Output: bin
 ```
 
 ### Connections with Gemini
