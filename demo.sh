@@ -38,4 +38,4 @@ if [ -z "$OPENAI_API_KEY" ]; then
 fi
 
 # Run the solver
-echo "$PUZZLE" | ./target/local/bin/connections
+echo "$PUZZLE" | ./bin/connections

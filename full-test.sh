@@ -8,8 +8,8 @@ echo ""
 cd ~/repos/sjg/connections || exit 1
 
 echo "1. Cleaning..."
-rm -rf target
-mkdir -p target/local/bin
+rm -rf bin
+mkdir -p bin
 
 echo ""
 echo "2. Testing individual packages..."
@@ -46,7 +46,7 @@ fi
 
 echo ""
 echo "3. Building main binary..."
-go build -o target/local/bin/connections ./cmd/cli
+go build -o bin/connections ./cmd/cli
 if [ $? -ne 0 ]; then
     echo "   ❌ Build FAILED"
     exit 1
@@ -59,7 +59,7 @@ echo "4. Installing to ~/bin..."
 cat > ~/bin/connections << 'EOFSCRIPT'
 #!/bin/bash
 cd ~/repos/sjg/connections || exit 1
-./target/local/bin/connections
+./bin/connections
 EOFSCRIPT
 
 chmod +x ~/bin/connections
