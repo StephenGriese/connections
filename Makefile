@@ -65,7 +65,7 @@ build: checks
 	rm -rf target
 	mkdir -p target/local/bin && go build -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/cli
 
-checks: $(HOOKS_SENTINEL) staticcheck lint test
+checks: $(HOOKS_SENTINEL) staticcheck lint-check test
 
 staticcheck:
 	staticcheck ./...
